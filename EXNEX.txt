@@ -1,0 +1,36 @@
+model{	
+
+	## likelihood/sampling model for the basket trials:	
+	for(i in 1:nMod){		
+	logit(p[i]) <- theta[i]		
+	r[i] ~ dbin(p[i], n[i])		
+	success[i] <- step(p[i] - p.cut)		
+
+	# pick up theta		
+	theta[i] <- mix.theta[exch.ind[i], i]	
+	
+	# Assume one EX distribution		
+	mix.theta[1, i] <- mu.theta + re.theta[i]	
+	re.theta[i] ~ dnorm(0, prec.re)				
+
+	# NEX distributions		
+	mix.theta[2, i] ~ dnorm(nex.theta, nex.prec.sig)		
+	
+	# Prior mixture weight		
+	exch.ind[i] ~ dcat(pMix[1:2])			
+
+		for(j in 1:2){				
+			each[i, j] <- equals(exch.ind[i], j)			
+			}	
+	}		
+
+
+	mu.theta ~ dnorm (Prior.mu.theta[1], prec.mu.theta) 		
+	prec.mu.theta <- pow(Prior.mu.theta[2], -2)
+
+	prec.re <- pow(tau, -2)
+	tau ~ dnorm(0, prec.sig)I(0.001,)
+	prec.sig <- pow(Prior.tau.HN, -2)
+
+	nex.prec.sig <- pow(nex.sig, -2)
+}

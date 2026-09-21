@@ -1,0 +1,20 @@
+model{
+
+	## likelihood/sampling model for the basket trials:
+	
+	for(i in 1:nMod){
+
+		
+	logit(p[i]) <- theta[i]	
+	r[i] ~ dbin(p[i], n[i])
+	success[i] <- step(p[i] - p.cut)
+
+	
+	theta[i] ~ dnorm(nex.theta, nex.prec.sig)
+	}
+
+
+	nex.prec.sig <- pow(nex.sig, -2)
+
+}
+
